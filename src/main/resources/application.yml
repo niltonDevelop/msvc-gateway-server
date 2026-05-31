@@ -1,5 +1,9 @@
+# Resilience4j — instancias alineadas con el arg "name" del filtro CircuitBreaker
 spring:
   cloud:
+    circuitbreaker:
+      resilience4j:
+        disable-time-limiter: false
     gateway:
       server:
         webflux:
@@ -8,20 +12,62 @@ spring:
               uri: lb://msvc-products
               predicates:
                 - Path=/api/v1/product/**
-                - Header=token, \d+
                 - Method=GET,POST
-                - Query=color, verde
-                - Cookie=color, azul
-                - Header=Content-Type, application/json
+                # Dev/práctica (descomentar para el curso):
+                # - Header=token, \d+
+                # - Query=color, verde
+                # - Cookie=color, azul
+                # - Header=Content-Type, application/json
               filters:
                 - StripPrefix=2
-                - ApiGatewayCookie=Este es un mensaje de prueba,nombre,Niilton
+                - name: CircuitBreaker
+                  args:
+                    name: products
+                    fallbackUri: forward:/fallback/products
+                    statusCodes: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+                # Dev/práctica:
+                # - ApiGatewayCookie=Este es un mensaje de prueba,nombre,Niilton
             - id: msvc-items
               uri: lb://msvc-items
               predicates:
                 - Path=/api/v1/items/**
               filters:
                 - StripPrefix=2
-                - AddRequestHeader=token-request,1234567890
-                - AddResponseHeader=token-response,ajsdhdgclsaidh
-                - AddRequestParameter=name, Niilton GR
+                - name: CircuitBreaker
+                  args:
+                    name: items
+                    fallbackUri: forward:/fallback/items
+                    statusCodes: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+                - name: AddRequestHeader
+                  args:
+                    name: token-request
+                    value: ${GATEWAY_INTERNAL_TOKEN:1234567890}
+                # Dev/práctica:
+                # - AddResponseHeader=token-response,ajsdhdgclsaidh
+                # - AddRequestParameter=name, Niilton GR
+
+resilience4j:
+  timelimiter:
+    instances:
+      products:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+      items:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+  circuitbreaker:
+    instances:
+      products:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        slowCallDurationThreshold: 3s
+        slowCallRateThreshold: 50
+      items:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        slowCallDurationThreshold: 3s
+        slowCallRateThreshold: 50
