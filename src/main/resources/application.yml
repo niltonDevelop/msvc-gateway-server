@@ -1,0 +1,27 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: msvc-products
+              uri: lb://msvc-products
+              predicates:
+                - Path=/api/v1/product/**
+                - Header=token, \d+
+                - Method=GET,POST
+                - Query=color, verde
+                - Cookie=color, azul
+                - Header=Content-Type, application/json
+              filters:
+                - StripPrefix=2
+                - ApiGatewayCookie=Este es un mensaje de prueba,nombre,Niilton
+            - id: msvc-items
+              uri: lb://msvc-items
+              predicates:
+                - Path=/api/v1/items/**
+              filters:
+                - StripPrefix=2
+                - AddRequestHeader=token-request,1234567890
+                - AddResponseHeader=token-response,ajsdhdgclsaidh
+                - AddRequestParameter=name, Niilton GR
