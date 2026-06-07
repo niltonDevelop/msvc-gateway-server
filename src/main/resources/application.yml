@@ -12,7 +12,7 @@ spring:
               uri: lb://msvc-products
               predicates:
                 - Path=/api/v1/product/**
-                - Method=GET,POST
+                - Method=GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS
                 # Dev/práctica (descomentar para el curso):
                 # - Header=token, \d+
                 # - Query=color, verde
