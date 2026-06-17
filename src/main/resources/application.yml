@@ -8,10 +8,22 @@ spring:
       server:
         webflux:
           routes:
+            - id: msvc-users
+              uri: lb://msvc-users
+              predicates:
+                - Path=/api/users/**
+                - Method=GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS
+              filters:
+                - StripPrefix=2
+                - name: CircuitBreaker
+                  args:
+                    name: users
+                    fallbackUri: forward:/fallback/users
+                    statusCodes: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
             - id: msvc-products
               uri: lb://msvc-products
               predicates:
-                - Path=/api/v1/product/**
+                - Path=/api/product/**
                 - Method=GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS
                 # Dev/práctica (descomentar para el curso):
                 # - Header=token, \d+
@@ -20,17 +32,17 @@ spring:
                 # - Header=Content-Type, application/json
               filters:
                 - StripPrefix=2
-                - name: CircuitBreaker
-                  args:
-                    name: products
-                    fallbackUri: forward:/fallback/products
-                    statusCodes: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
+                #- name: CircuitBreaker
+                #  args:
+                #    name: products
+                #    fallbackUri: forward:/fallback/products
+                #    statusCodes: BAD_GATEWAY,GATEWAY_TIMEOUT,INTERNAL_SERVER_ERROR,SERVICE_UNAVAILABLE
                 # Dev/práctica:
                 # - ApiGatewayCookie=Este es un mensaje de prueba,nombre,Niilton
             - id: msvc-items
               uri: lb://msvc-items
               predicates:
-                - Path=/api/v1/items/**
+                - Path=/api/items/**
               filters:
                 - StripPrefix=2
                 - name: CircuitBreaker
