@@ -29,4 +29,13 @@ public class FallbackController {
                         "error", "Servicio items no disponible temporalmente",
                         "service", "msvc-items")));
     }
+
+    @RequestMapping("/fallback/users")
+    public Mono<ResponseEntity<Map<String, String>>> usersFallback() {
+        return Mono.just(ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of(
+                        "error", "Servicio users no disponible temporalmente",
+                        "service", "msvc-users")));
+    }
 }
