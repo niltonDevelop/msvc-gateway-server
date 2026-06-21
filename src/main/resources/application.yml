@@ -31,6 +31,17 @@ spring:
       server:
         webflux:
           routes:
+            - id: oauth-auth
+              uri: lb://oauth
+              predicates:
+                - Path=/api/auth/**
+                - Method=GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS
+              filters:
+                - StripPrefix=0
+                - name: AddRequestHeader
+                  args:
+                    name: X-Internal-Token
+                    value: ${GATEWAY_INTERNAL_TOKEN:1234567890}
             - id: oauth
               uri: lb://oauth
               predicates:
