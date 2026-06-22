@@ -1,0 +1,24 @@
+# OAuth en contenedor: URIs explícitas (sin OIDC discovery por issuer).
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://oauth:9190/oauth2/jwks
+      client:
+        registration:
+          client-app:
+            provider: spring
+            client-id: gateway-app
+            client-secret: 12345
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+            - openid
+            - profile
+            client-name: client-app
+        provider:
+          spring:
+            token-uri: http://oauth:9190/oauth2/token
+            authorization-uri: http://localhost:9190/oauth2/authorize
+            jwk-set-uri: http://oauth:9190/oauth2/jwks
