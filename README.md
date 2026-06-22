@@ -7,6 +7,7 @@
 - Java 21 · Spring Boot 4.0.6 · Spring Cloud 2025.1.1
 - Puerto: **8080**
 - JWT issuer: `http://127.0.0.1:9190`
+- **Distributed tracing:** [Micrometer Tracing](https://docs.micrometer.io/tracing/reference/) + Zipkin (span raíz del ecosistema). Ver [docs/TRACING.md](docs/TRACING.md)
 
 ## Endpoints propios
 
@@ -41,3 +42,11 @@ Es la **puerta de entrada HTTP** para clientes externos (navegador, Flutter). Un
 **Consumido por:** **flutter_spring_boot** (API protegida en `:8080`).
 
 **Orden de arranque recomendado:** 6.º, cuando Eureka, OAuth y los microservicios destino estén registrados.
+
+## Tracing (Zipkin)
+
+```bash
+cd .. && docker compose up -d   # raíz SpringCloud → http://localhost:9411
+```
+
+El gateway crea el span raíz y propaga trazas a oauth, users, items y products. Detalle: [docs/TRACING.md](docs/TRACING.md).
